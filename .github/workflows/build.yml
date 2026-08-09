@@ -7,8 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Unzip Project
-      run: unzip PayVault.zip
+    - name: Unzip and Move Files
+      run: |
+        unzip PayVault.zip -d temp_unzip
+        SUBDIR=$(find temp_unzip -mindepth 1 -maxdepth 1 -type d | head -n 1)
+        if [ ! -z "$SUBDIR" ]; then
+          mv $SUBDIR/* .
+          mv $SUBDIR/.* . 2>/dev/null || true
+        else
+          mv temp_unzip/* .
+        fi
+        rm -rf temp_unzip
+        ls -la
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
