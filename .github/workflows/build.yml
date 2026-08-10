@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Unzip and Move Files
+    - name: Unzip and Prepare Project
       run: |
         unzip PayVault.zip -d temp_unzip
         SUBDIR=$(find temp_unzip -mindepth 1 -maxdepth 1 -type d | head -n 1)
@@ -18,6 +18,27 @@ jobs:
           mv temp_unzip/* .
         fi
         rm -rf temp_unzip
+        
+        # Automatically create settings.gradle.kts if it is missing
+        if [ ! -f "settings.gradle.kts" ]; then
+          echo "pluginManagement {
+            repositories {
+              google()
+              mavenCentral()
+              gradlePluginPortal()
+            }
+          }
+          dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+              google()
+              mavenCentral()
+            }
+          }
+          rootProject.name = \"PayVault\"
+          include(\":app\")" > settings.gradle.kts
+        fi
+        
         ls -la
     - name: Set up JDK
       uses: actions/setup-java@v4
