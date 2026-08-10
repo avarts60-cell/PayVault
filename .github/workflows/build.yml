@@ -7,19 +7,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Unzip and Prepare Project
+    - name: Unzip and Extract App Folder
       run: |
         unzip PayVault.zip -d temp_unzip
-        SUBDIR=$(find temp_unzip -mindepth 1 -maxdepth 1 -type d | head -n 1)
-        if [ ! -z "$SUBDIR" ]; then
-          mv $SUBDIR/* .
-          mv $SUBDIR/.* . 2>/dev/null || true
+        
+        # Find the directory that contains the 'app' folder
+        PROJECT_DIR=$(find temp_unzip -name "app" -type d -exec dirname {} \; | head -n 1)
+        
+        if [ ! -z "$PROJECT_DIR" ]; then
+          echo "Found project files in: $PROJECT_DIR"
+          cp -a $PROJECT_DIR/. .
         else
-          mv temp_unzip/* .
+          echo "Could not find 'app' folder. Copying everything."
+          cp -a temp_unzip/. .
         fi
+        
         rm -rf temp_unzip
         
-        # Automatically create settings.gradle.kts if it is missing
+        # Create settings.gradle.kts just in case
         if [ ! -f "settings.gradle.kts" ]; then
           echo "pluginManagement {
             repositories {
