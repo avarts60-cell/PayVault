@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Unzip and Move Files
       run: |
-        unzip PayVault.zip -d temp_unzip
+        unzip "PayVault .zip" -d temp_unzip
         SUBDIR=$(find temp_unzip -mindepth 1 -maxdepth 1 -type d | head -n 1)
         if [ ! -z "$SUBDIR" ]; then
           mv $SUBDIR/* .
